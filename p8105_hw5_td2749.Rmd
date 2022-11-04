@@ -5,3 +5,23 @@ date: "2022-11-03"
 output: github_document
 ---
 
+```{r message = FALSE}
+library(tidyverse)
+library(plotly)
+
+knitr::opts_chunk$set(
+  fig.width = 10,
+  fig.asp = .6,
+  out.width = "90%"
+)
+```
+
+# Problem 2
+
+```{r homicide_data set up}
+homicide_data = 
+  read_csv("./data/homicide-data.csv") %>%
+  janitor::clean_names()
+```
+
+**Raw Data Description**: The raw data consists of `r nrow(homicide_data)` rows of observations and `r ncol(homicide_data)` columns of variables. Each row identifies a distinct homicide victim's information. The variables are `r colnames(homicide_data)`. From these pieces of information, we get a picture of each victim's personal details, date of the homicide, location, and the disposition of the case. There are some missing values (NA) in the latitude and longitude columns. Most columns contain character values. Several cells in the `race`, `age`, and `sex` columns contain 'Unknown', reflecting the missing information regarding the specific individuals. 
