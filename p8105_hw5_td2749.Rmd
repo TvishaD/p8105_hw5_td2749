@@ -31,6 +31,8 @@ homicide_data =
       mutate(total_cases = closed_by_arrest + closed_without_arrest + open_no_arrest) %>% 
       mutate(unsolved_cases = closed_without_arrest + open_no_arrest) %>% 
       select(city_state, unsolved_cases, total_cases)
+
+head(homicide_data)
 ```
 
 **Raw Data Description**: The raw data consists of `r nrow(homicide_data)` rows of observations and `r ncol(homicide_data)` columns of variables. Each row identifies a distinct homicide victim's information. The variables are `r colnames(homicide_data)`. From these pieces of information, we get a picture of each victim's personal details, date of the homicide, location, and the disposition of the case. There are some missing values (NA) in the latitude and longitude columns. Most columns contain character values. Several cells in the `race`, `age`, and `sex` columns contain 'Unknown', reflecting the missing information regarding the specific individuals. There are some cities (Boston, Los Angeles, Louisville, Oakland, and Pittsburgh) where there are no cases labelled as "closed without arrest". 
@@ -52,4 +54,24 @@ baltimore_proptest %>% pull(conf.low)
 # balt_upper_bound
 baltimore_proptest %>% pull(conf.high)
 ```
+
+```{r tidy pipeline for prop}
+homicide_prop_results =
+  homicide_data %>% 
+    mutate(purrr::map2_df(.x = unsolved_cases, .y = total_cases, ~broom::tidy(prop.test(x = .x, n = .y)))) %>% 
+    select(city_state, unsolved_cases, total_cases, estimate, conf.low, conf.high) %>% 
+    rename(unsolved_prop = estimate)
+
+```
+
+
+
+
+
+
+
+
+
+
+
 
