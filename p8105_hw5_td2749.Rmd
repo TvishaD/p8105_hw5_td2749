@@ -21,7 +21,17 @@ knitr::opts_chunk$set(
 ```{r homicide_data set up}
 homicide_data = 
   read_csv("./data/homicide-data.csv") %>%
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+    unite(city_state, c(city, state), sep = ",", remove = FALSE) %>% 
+    group_by(city, disposition) %>% 
+      summarize(cases = n()) %>%
+      pivot_wider(names_from = disposition, values_from = cases) %>% 
+      janitor::clean_names() %>% 
+      replace(is.na(.), 0) %>% 
+      mutate(total_cases = closed_by_arrest + closed_without_arrest + open_no_arrest) %>% 
+      mutate(unsolved_cases = closed_without_arrest + open_no_arrest) %>% 
+      select(city, unsolved_cases, total_cases)
+  
 ```
 
-**Raw Data Description**: The raw data consists of `r nrow(homicide_data)` rows of observations and `r ncol(homicide_data)` columns of variables. Each row identifies a distinct homicide victim's information. The variables are `r colnames(homicide_data)`. From these pieces of information, we get a picture of each victim's personal details, date of the homicide, location, and the disposition of the case. There are some missing values (NA) in the latitude and longitude columns. Most columns contain character values. Several cells in the `race`, `age`, and `sex` columns contain 'Unknown', reflecting the missing information regarding the specific individuals. 
+**Raw Data Description**: The raw data consists of `r nrow(homicide_data)` rows of observations and `r ncol(homicide_data)` columns of variables. Each row identifies a distinct homicide victim's information. The variables are `r colnames(homicide_data)`. From these pieces of information, we get a picture of each victim's personal details, date of the homicide, location, and the disposition of the case. There are some missing values (NA) in the latitude and longitude columns. Most columns contain character values. Several cells in the `race`, `age`, and `sex` columns contain 'Unknown', reflecting the missing information regarding the specific individuals. There are some cities (Boston, Los Angeles, Louisville, Oakland, and Pittsburgh) where there are no cases labelled as "closed without arrest". 
