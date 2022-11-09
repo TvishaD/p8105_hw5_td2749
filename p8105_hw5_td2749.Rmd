@@ -68,7 +68,7 @@ homicide_prop_results =
 
 **NOTE**: The warning message reveals that chi-square approximation may be incorrect for "city_state = Tulsa,AL". This is because this group only contains 1 homicide case (total) and 0 unsolved cases. As there is no scenario of an unsolved cases proportion (0/1) here and as the total number of cases is only 1, it is not appropriate to perform a one-sample proportion test under these circumstances. 
 
-```{r plot of estimate with ci}
+```{r plot - estimate with ci}
 unsolved_prop_plot = 
   homicide_prop_results %>%
     ggplot(aes(x = reorder(city_state, unsolved_prop), y = unsolved_prop)) +
@@ -78,8 +78,7 @@ unsolved_prop_plot =
            x = "Location (City and State)",
            y = "Proportion of Unsolved Homicide Cases",
            caption = "Proportions of unsolved homicides with associated 95% confidence intervals between 2007 and 2017 in major US cities.") +
-      theme(legend.position = "none",
-            plot.title = element_text(hjust = 0.5, face = "bold"),
+      theme(plot.title = element_text(hjust = 0.5, face = "bold"),
             plot.caption = element_text(hjust = 0.5),
             axis.title = element_text(face = "bold"),
             axis.text.x = element_text(angle = 70, hjust = 1))
@@ -129,7 +128,31 @@ norm_and_t_test = function(mu) {
 sim_results_df = 
   expand_grid(
     mu = c(0, 1, 2, 3, 4, 5, 6),
-    iteration = 1:10) %>% 
+    iteration = 1:5000) %>% 
   mutate(results = map(mu, norm_and_t_test)) %>% 
   unnest(results)
 ```
+
+```{r plot - proportion of rejections vs mu}
+sim_results_df %>% 
+  mutate(indicator = case_when(p_value < 0.05 ~ "reject",
+                               p_value > 0.05 ~ "fail_to_reject")) %>% 
+  group_by(mu, indicator) %>%
+  summarize(counts = n()) %>% 
+  pivot_wider(names_from = indicator, values_from = counts) %>% 
+  mutate(total = fail_to_reject + reject,
+         reject_prop = reject/total) %>% 
+    ggplot(aes(x = as.factor(mu), y = reject_prop)) + 
+      geom_point() +
+      labs(title = "Power vs. True Mean",
+           x = "True Mean",
+           y = "Power") +
+      theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+            plot.caption = element_text(hjust = 0.5),
+            axis.title = element_text(face = "bold"))
+```
+
+```{r}
+
+```
+
