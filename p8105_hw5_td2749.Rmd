@@ -89,7 +89,7 @@ unsolved_prop_plot
 # Problem 3: Simulation
 
 ```{r set seed}
-set.seed(1)
+#set.seed(1)
 ```
 
 ```{r working on mean 0}
@@ -151,8 +151,22 @@ sim_results_df %>%
             plot.caption = element_text(hjust = 0.5),
             axis.title = element_text(face = "bold"))
 ```
+**Association between effect size and power**: ______________
 
-```{r}
-
+```{r plot - avg obs mu overall and rejected cases vs mu}
+sim_results_df %>% 
+  group_by(mu) %>% 
+  mutate(overall_avg_obs_mu = sum(obs_mu)/n()) %>% 
+  mutate(indicator = case_when(p_value < 0.05 ~ "reject",
+                               p_value > 0.05 ~ "fail_to_reject")) %>% 
+  group_by(mu, indicator, overall_avg_obs_mu) %>% 
+  summarize(avg_obs_mu = sum(obs_mu)/n()) %>% 
+  pivot_wider(names_from = indicator, values_from = avg_obs_mu) %>% 
+  rename(avg_obs_mu_reject = reject) %>% 
+  select(-fail_to_reject) %>% 
+  pivot_longer(overall_avg_obs_mu:avg_obs_mu_reject, names_to = "condition", values_to = "avg_obs_mu_val") %>% 
+    ggplot(aes(x = as.factor(mu), y = avg_obs_mu_val, color = condition)) +
+      geom_point()
+  
 ```
 
