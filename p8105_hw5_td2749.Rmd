@@ -93,7 +93,7 @@ unsolved_prop_plot
 set.seed(1)
 ```
 
-```{r}
+```{r working on mean 0}
 output_0_mu = vector("list", 5000)
 
 for (i in 1:5000) {
@@ -107,18 +107,11 @@ output_0_mu_df =
 
 ```
 
-```{r}
-sim_results_df = 
-  expand_grid(
-    mu = c(0, 1, 2, 3, 4, 5, 6),
-    iteration = 1:10) %>% 
-  mutate(broom::tidy(t.test(rnorm(n = 30, mean = mu, sd = 5), mu = mu, conf.level = 0.95))) %>% 
-  select(mu, iteration, estimate, p.value) %>% 
-  rename(obs_mu = estimate, p_value = p.value)
-```
-
-```{r}
-t_test_func = function(mu) {
+```{r create norm_and_t_test function}
+norm_and_t_test = function(mu) {
+  
+  if (!is.numeric(mu)) {
+    stop("The mean (mu value) should be numeric")}
   
   sim_data = tibble(
     x = rnorm(n = 30, mean = mu, sd = 5),
@@ -132,4 +125,11 @@ t_test_func = function(mu) {
 }
 ```
 
-
+```{r generating the large df with multiple means}
+sim_results_df = 
+  expand_grid(
+    mu = c(0, 1, 2, 3, 4, 5, 6),
+    iteration = 1:10) %>% 
+  mutate(results = map(mu, norm_and_t_test)) %>% 
+  unnest(results)
+```
