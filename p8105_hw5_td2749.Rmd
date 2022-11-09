@@ -89,7 +89,7 @@ unsolved_prop_plot
 # Problem 3: Simulation
 
 ```{r set seed}
-#set.seed(1)
+set.seed(1)
 ```
 
 ```{r working on mean 0}
