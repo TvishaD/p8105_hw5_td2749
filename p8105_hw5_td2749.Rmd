@@ -107,6 +107,8 @@ output_0_mu_df =
   select(estimate, p.value) %>% 
   rename(obs_mu = estimate, p_value = p.value)
 
+head(output_0_mu_df)
+
 ```
 
 ```{r create norm_and_t_test function}
@@ -174,4 +176,9 @@ sim_results_df %>%
       geom_point()
   
 ```
+**Is the sample average of the observed mu across tests for which the null is rejected approximately equal to the true value of mu? Why or why not?**: _________________
+
+
+
+
 
