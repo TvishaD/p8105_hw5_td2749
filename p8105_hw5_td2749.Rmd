@@ -69,11 +69,12 @@ homicide_prop_results =
 
 ```
 
-**NOTE**: The warning message reveals that chi-square approximation may be incorrect for "city_state = Tulsa,AL". This is because this group only contains 1 homicide case (total) and 0 unsolved cases. As there is no scenario of an unsolved cases proportion (0/1) here and as the total number of cases is only 1, it is not appropriate to perform a one-sample proportion test under these circumstances. 
+**NOTE**: The warning message reveals that chi-square approximation may be incorrect for "city_state = Tulsa,AL". This is because this group only contains 1 homicide case (total) and 0 unsolved cases. As there is no scenario of an unsolved cases proportion (0/1) here and as the total number of cases is only 1, it is not appropriate to perform a one-sample proportion test under these circumstances. Due to this reason, this observation is *excluded* from the plot below. 
 
 ```{r plot - estimate with ci}
 unsolved_prop_plot = 
   homicide_prop_results %>%
+  filter(city_state != "Tulsa,AL") %>% 
     ggplot(aes(x = reorder(city_state, unsolved_prop), y = unsolved_prop)) +
       geom_point() +
       geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
@@ -157,7 +158,7 @@ sim_results_df %>%
             plot.caption = element_text(hjust = 0.5),
             axis.title = element_text(face = "bold"))
 ```
-**Association between effect size and power**: ______________
+**Association between effect size and power**: As the effect size increases, the power also increases. i.e there is a directly proportional relationship between effect size and power. 
 
 ```{r plot - avg obs mu overall and rejected cases vs mu}
 sim_results_df %>% 
@@ -172,11 +173,17 @@ sim_results_df %>%
   rename(avg_obs_mu_reject = reject) %>% 
   select(-fail_to_reject) %>% 
   pivot_longer(overall_avg_obs_mu:avg_obs_mu_reject, names_to = "condition", values_to = "avg_obs_mu_val") %>% 
-    ggplot(aes(x = as.factor(mu), y = avg_obs_mu_val, color = condition)) +
-      geom_point()
+    ggplot(aes(x = as.factor(mu), y = avg_obs_mu_val)) +
+      geom_point(aes(color = condition, shape = condition)) +
+      labs(title = "Overall and Rejected Mu Vs. True Mu",
+           x = "True Mu",
+           y = "Observed Mu") +
+      theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+            plot.caption = element_text(hjust = 0.5),
+            axis.title = element_text(face = "bold"))
   
 ```
-**Is the sample average of the observed mu across tests for which the null is rejected approximately equal to the true value of mu? Why or why not?**: _________________
+**Is the sample average of the observed mu across tests for which the null is rejected approximately equal to the true value of mu? Why or why not?**: The sample average of the observed mu across tests for which the null is rejected is not approximately equal to the true value of mu for every mu. It only begins to be so as the true value of mu increases. ___
 
 
 
