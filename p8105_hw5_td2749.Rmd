@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 # Problem 1: Files
 
-```{r using list.files to set up df}
+```{r using list.files to set up df, message = FALSE}
 full_df = 
   tibble(
     files = list.files("data/zip_data/"),
@@ -95,7 +95,7 @@ baltimore_proptest %>% pull(conf.high)
 homicide_prop_results =
   homicide_data %>% 
     mutate(
-      result = purrr::map2_df(.x = unsolved_cases, .y = total_cases, ~broom::tidy(prop.test(x = .x, n = .y)))
+      result = purrr::map2(.x = unsolved_cases, .y = total_cases, ~broom::tidy(prop.test(x = .x, n = .y)))
       ) %>%
     unnest(result) %>% 
     select(city_state, unsolved_cases, total_cases, estimate, conf.low, conf.high) %>% 
@@ -194,7 +194,13 @@ sim_results_df %>%
             plot.caption = element_text(hjust = 0.5),
             axis.title = element_text(face = "bold"))
 ```
-**Association between effect size and power**: As the effect size increases, the power also increases. i.e there is a directly proportional relationship between effect size and power. Given the set sample size of 30 with 5000 trials, it is clear that the greater the effect size, the higher the power. ___
+**Association between effect size and power**: As the effect size increases, the power also increases. i.e there is a directly proportional relationship between effect size and power. In this particular case, in our t-tests, we consider the following hypothesis: 
+* Ho : True mean is 0
+* H(alternative): True mean is NOT 0. 
+In this set up, as we go from true mean is 0 to 1 to 2 to 3 onwards, the effect size keeps going up as the distance between the hypothesized mean (0) and the true mean (0/1/2/3/4/5/6) increases. When the true mean is 6, in a repeated trial set up with 5000 trials and a normally generated sample of size 30, the chances of ending up with an observed mean that is actually ~0 are extremely low. Due to this, the proportion of times the null hypothesis (mean is 0) is rejected is therefore high (almost all observed means are ~6 and not ~0 and so, almost all t-tests result in rejections of the null hypothesis). The opposite is the case when the true mean is the same as the hypothesized mean (0 and 0). Here, the effect size is extremely minimal as most of the observed means are set to be around 0. As a result the null hypothesis holds true and there are no rejections made, revealing a low proportion of null hypothesis rejections, i.e low power. 
+
+In cases where the null hypothesis is false, we ideally want to reject them. Which is that based on the context of our study, we would prioritize our experimental designs to have high power. 
+
 
 ```{r plot - avg obs mu overall and rejected cases vs mu}
 sim_results_df %>% 
@@ -219,9 +225,9 @@ sim_results_df %>%
             axis.title = element_text(face = "bold"))
   
 ```
-**Is the sample average of the observed mu across tests for which the null is rejected approximately equal to the true value of mu? Why or why not?**: The sample average of the observed mu across tests for which the null is rejected is not approximately equal to the true value of mu for every mu. It only begins to be so as the true value of mu increases. ___
-
-
+**Is the sample average of the observed mu across tests for which the null is rejected approximately equal to the true value of mu? Why or why not?**: The sample average of the observed mu across tests for which the null is rejected is not approximately equal to the true value of mu for every mu. As the value of true mu increases, the sample average of the observed mu across tests for which the null is rejected converges to the true mu. 
+* When the true mu is 0, the avg value of the rejected is actually quite close. This could actually be anything but as we have a large trial number (5000) and the values are generated from normal samples of size 30, the averages end up going towards the true mean. 
+* As the value of the true mean keeps increasing, most cases gradually involve the rejection of the null hypothesis (true mean = 0), which is why for true mu 5 and 6, the sample average of the observed mu in rejected cases is the same as the true mu .
 
 
 
